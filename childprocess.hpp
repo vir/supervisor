@@ -47,6 +47,7 @@ class ChildProcess:public AsyncReader, public ChildProc
 		ReadBuffer m_bufe;
 	public:
 		ChildProcess(Family * f):m_family(f) { }
+		virtual ~ChildProcess() { }
 		int pid() const { return m_pid; }
 		bool start();
 		virtual int can_read(int fd);
