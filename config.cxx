@@ -24,7 +24,7 @@ void trim(std::string & str)
 bool Config::parse_line(std::string line)
 {
 	trim(line);
-	if(!line.length() || line[0] == '#')
+	if(!line.length() || line[0] == '#' || line[0] == ';')
 		return true;
 	if(line[0] == '[' && line[line.length() - 1] == ']') {
 		std::string context = line.substr(1, line.length() - 2);
@@ -64,6 +64,8 @@ bool Config::read_file(const std::string & fname)
 	std::string line;
 	bool result = true;
 	int linenum = 1;
+	if(!f)
+		return false;
 	while(getline(f, line)) {
 		if(!parse_line(line)) {
 			std::cerr << "Error in " << fname << " line " << linenum << std::endl;
