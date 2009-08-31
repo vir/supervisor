@@ -15,7 +15,7 @@ all: .depend ${BINS}
 .o.so:
 	gcc -g -Wall -pipe -shared -nostartfiles -nostdlib -o $@ $^
 
-supervisor: supervisor.o family.o childprocess.o eventdispatcher.o config.o logger.o
+supervisor: supervisor.o family.o childprocess.o eventdispatcher.o config.o logger.o daemonize.o
 	g++ -g -Wall -pipe -o $@ $^
 
 #---------------------------------------------------------------------------
@@ -23,11 +23,8 @@ supervisor: supervisor.o family.o childprocess.o eventdispatcher.o config.o logg
 clean:
 	-rm -f ${BINS} *.o .depend core
 
-#install:
-#	install -d ${DIR_BINS}
-#	install -d ${DIR_LIBS}
-#	install -s -m 500 ${BINS} ${DIR_BINS}
-#	install    -m 500 ${DLLS} ${DIR_LIBS}
+install:
+	install -m 555 supervisor /usr/local/bin
 
 .depend:
 	gcc -MM -MG *.cxx >.depend
