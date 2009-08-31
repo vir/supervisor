@@ -63,6 +63,11 @@ bool Family::start()
 	return m_active->start();
 }
 
+bool Family::stop()
+{
+	return false;
+}
+
 bool Family::autostart()
 {
 	if(m_autostart)

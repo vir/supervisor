@@ -27,6 +27,7 @@ class Family:public TimerHandler, public ConfTarget
 		void cmd(const std::string & s) { m_cmd = s; }
 		std::string name() const { return m_name; }
 		bool start();
+		bool stop();
 		bool autostart();
 		void celebrate_child_death(ChildProcess * cp, int status);
 		void output(char stream, const std::string & s, bool forcetimestamp = false);
