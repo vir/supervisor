@@ -45,6 +45,7 @@ bool Supervisor::configure(const std::string & var, const std::string & value)
 		return true;
 	} else if(var == "background") {
 		m_background = Config::to_bool(value);
+		return true;
 	}
 	return false;
 }
