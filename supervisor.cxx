@@ -8,6 +8,11 @@
 #include "eventdispatcher.hpp"
 #include "config.hpp"
 
+#include "daemonize.h"
+
+#include <unistd.h>
+#include <iostream>
+
 Supervisor super;
 
 Family * Supervisor::create_family(const std::string & name)
@@ -24,12 +29,22 @@ void Supervisor::autostart()
 		it->second->autostart();
 	}
 }
+
+void Supervisor::shutdown()
+{
+	std::map<std::string, Family *>::iterator it;
+	for(it = m_fams.begin(); it != m_fams.end(); it++) {
+		it->second->stop();
+	}
+}
  
 bool Supervisor::configure(const std::string & var, const std::string & value)
 {
 	if(var == "logdir") {
 		m_logdir = value;
 		return true;
+	} else if(var == "background") {
+		m_background = Config::to_bool(value);
 	}
 	return false;
 }
@@ -45,14 +60,38 @@ ConfTarget * Supervisor::confcontext(const std::string & ctx, bool brackets)
 		return it->second;
 	return NULL;
 }
- 
+
 int main(int argc, char * argv[])
 {
-//	Supervisor s;
-//	s.add(new Family(&s, "first"))->cmd("./tricky.pl first try");
-//	s.add(new Family(&s, "second"))->cmd("./tricky.pl second and last");
+	const char * conffile = "supervisor.conf";
+	int daemon = 0;
+	int ch;
+	while ((ch = getopt(argc, argv, "?hc:D")) != -1) {
+		switch (ch) {
+			case 'c':
+				conffile = optarg;
+				break;
+			case 'D':
+				daemon++;
+				break;
+			case 'h':
+			case '?':
+			default:
+				std::cout << "Usage: " << argv[0] << " [-h] [-D] [-c /path/to/supervisor.conf]" << std::endl;
+				return 0;
+		}
+	}
+	argc -= optind;
+	argv += optind;
+
 	config.default_context(&super);
-	config.read_file("supervisor.conf");
+	if(!config.read_file(conffile)) {
+		std::cerr << "Can not open config file " << conffile << std::endl;
+		return -1;
+	}
+	if(super.background() || daemon) {
+		daemonize();
+	}
 	super.autostart();
 	return disp.run();
 }

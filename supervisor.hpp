@@ -11,13 +11,16 @@ class Supervisor:public ConfTarget
 	private:
 		std::map<std::string, Family *> m_fams;
 		std::string m_logdir;
+		bool m_background;
 	public:
-		Supervisor():m_logdir(".") { }
+		Supervisor():m_logdir("."),m_background(false) { }
 		virtual ~Supervisor() { }
 		const std::string & logdir() const { return m_logdir; }
+		bool background() const { return m_background; }
 		void logdir(const std::string & d) { m_logdir = d; }
 		Family * create_family(const std::string & name);
 		void autostart();
+		void shutdown();
 		virtual bool configure(const std::string & var, const std::string & value);
 		virtual ConfTarget * confcontext(const std::string & ctx, bool brackets);
 };
