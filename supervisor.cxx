@@ -31,11 +31,32 @@ void Supervisor::autostart()
 	}
 }
 
-void Supervisor::shutdown()
+void Supervisor::shutdown(bool restart)
 {
+	std::cout << "Requested " << (restart?"restart":"shutdown") << std::endl;
+	m_state = restart ? ST_RESTART : ST_SHUTDOWN;
 	std::map<std::string, Family *>::iterator it;
 	for(it = m_fams.begin(); it != m_fams.end(); it++) {
 		it->second->stop();
+	}
+	disp.register_alarm(1, this); // wait for all children
+}
+
+void Supervisor::signal(int signum)
+{
+	if(signum == SIGHUP)
+		shutdown(true);
+	else
+		shutdown(false);
+}
+
+void Supervisor::timeout()
+{
+	if(count_running()) {
+		disp.register_alarm(1, this); // wait for all children
+	} else {
+		std::cout << "All dead, good!" << std::endl;
+		disp.stop();
 	}
 }
  
@@ -66,9 +87,23 @@ ConfTarget * Supervisor::confcontext(const std::string & ctx, bool brackets)
 	return NULL;
 }
 
+unsigned int Supervisor::count_running() const
+{
+	unsigned int r = 0;
+	std::map<std::string, Family *>::const_iterator it;
+	for(it = m_fams.begin(); it != m_fams.end(); it++) {
+		if(it->second->state() == Family::ST_RUN)
+			r++;
+	}
+	return r;
+}
+
 int Supervisor::run()
 {
 	Pidfile pidfile(m_pidfile.c_str());
+	disp.register_signal(SIGHUP, this);
+	disp.register_signal(SIGINT, this);
+	disp.register_signal(SIGTERM, this);
 	autostart();
 	return disp.run();
 }
@@ -93,8 +128,10 @@ int main(int argc, char * argv[])
 				return 0;
 		}
 	}
-	argc -= optind;
-	argv += optind;
+#if 0
+	int new_argc = argc - optind;
+	char * new_argv[] = &argv[optind];
+#endif
 
 	config.default_context(&super);
 	if(!config.read_file(conffile)) {
@@ -104,7 +141,11 @@ int main(int argc, char * argv[])
 	if(super.background() || daemon) {
 		daemonize();
 	}
-	return super.run();
+	int result = super.run();
+	if(super.state() == Supervisor::ST_RESTART) {
+		execvp(argv[0], argv);
+	}
+	return result;
 }
 
 
