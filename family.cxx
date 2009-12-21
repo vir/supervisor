@@ -42,7 +42,7 @@ static std::string now()
 
 
 Family::Family(const std::string & name)
-	:m_active(0), m_name(name), m_autostart(true), m_autorestart(true), m_restart_delay(1), m_logger(0), m_logtailsize(100)
+	:m_state(ST_RUN), m_active(0), m_name(name), m_autostart(true), m_autorestart(true), m_restart_delay(1), m_logger(0), m_logtailsize(100)
 {
 	config.register_context(name, this);
 }
@@ -51,6 +51,28 @@ Family::~Family()
 {
 	config.unregister_context(m_name);
 	delete m_logger;
+}
+
+void Family::shutdown(bool initial)
+{
+	static const int killseq[] = { SIGINT, SIGTERM, SIGTERM, SIGTERM, SIGKILL, SIGKILL, 0 };
+	if(!m_active)
+		return;
+	if(initial) {
+		m_shutdownphase = 0;
+		disp.unregister_alarm(this);
+	}
+	int sig = killseq[m_shutdownphase];
+	if(sig) {
+		std::stringstream ss;
+		ss << "Sending signal " << sig;
+		output('S', ss.str(), true);
+		m_active->kill(sig);
+		m_shutdownphase++;
+		disp.register_alarm(2, this);
+	} else {
+		output('S', "Can not kill child!!! Giving up.", true);
+	}
 }
 
 bool Family::start()
@@ -65,6 +87,15 @@ bool Family::start()
 
 bool Family::stop()
 {
+	m_state = ST_SHUTDOWN;
+	shutdown(true);
+	return false;
+}
+
+bool Family::restart()
+{
+	m_state = ST_RESTART;
+	shutdown(true);
 	return false;
 }
 
@@ -115,14 +146,19 @@ void Family::celebrate_child_death(ChildProcess * cp, int status)
 	 * log message about death with status explanation
 	 * request restart after configured timeout
 	 */
-	if(m_autorestart)
+	if((m_state == ST_RUN && m_autorestart) || m_state == ST_RESTART) {
 		disp.register_alarm(m_restart_delay, this);
+		m_state = ST_RUN;
+	}
 }
 
 void Family::timeout()
 {
-	if(m_autorestart)
+	if(m_state == ST_RUN) {
 		start();
+	} else {
+		shutdown(false);
+	}
 }
 
 bool Family::configure(const std::string & var, const std::string & value)
