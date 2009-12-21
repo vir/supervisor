@@ -14,7 +14,8 @@ int ReadBuffer::do_read()
 	char buf[8192];
 	int r = ::read(m_fd, buf, sizeof(buf));
 //	std::cout << "Read " << r << " bytes from fd " << m_fd << std::endl;
-	m_buf.append(buf, r);
+	if(r > 0)
+		m_buf.append(buf, r);
 	return r;
 }
 
