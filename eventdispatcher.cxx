@@ -3,7 +3,6 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <signal.h>
 #include <sys/wait.h>
 
 #include <iostream>
@@ -48,13 +47,48 @@ void EventDispatcher::register_alarm(int when, TimerHandler * handler)
 	m_timeouts.insert(std::pair<int, TimerHandler *>(when, handler));
 }
 
+void EventDispatcher::unregister_alarm(TimerHandler * handler)
+{
+	XDEBUG(std::cout << "Removing alarm(" << handler << ")" << std::endl);
+	std::multimap<int, TimerHandler *>::iterator it;
+	bool found;
+	do {
+		found = false;
+		for(it = m_timeouts.begin(); it != m_timeouts.end(); it++) {
+			if(it->second == handler) {
+				m_timeouts.erase(it);
+				found = true;
+				break;
+			}
+		}
+	} while(found);
+}
+
 void EventDispatcher::sigchldhandler(int signum)
 {
-	std::cout << "Got SIGCHLD" << std::endl;
+	XDEBUG(std::cout << "Got SIGCHLD" << std::endl);
 	int pid, status;
 	while((pid = waitpid(-1, &status, WNOHANG)) > 0) {
 		disp.note_death(pid, status);
 	}
+}
+
+void EventDispatcher::signalhandler(int signum)
+{
+	XDEBUG(std::cout << "Got SIGNAL " << signum << std::endl);
+	disp.m_sigq.push(signum);
+}
+
+void EventDispatcher::register_signal(int signum, SignalHandler * handler)
+{
+	XDEBUG(std::cout << "Adding signal " << signum << " handler " << handler << std::endl);
+	m_signals[signum] = handler;
+
+	struct sigaction new_action;
+	new_action.sa_handler = signalhandler;
+	sigemptyset (&new_action.sa_mask);
+	new_action.sa_flags = 0;
+	sigaction(signum, &new_action, NULL);
 }
 
 #include <stdio.h>
@@ -64,11 +98,12 @@ int EventDispatcher::run()
 	int maxfd = 0;
 	fd_set rfds;
 	struct timeval tv;
+
 	struct sigaction new_action;
 	new_action.sa_handler = sigchldhandler;
 	sigemptyset (&new_action.sa_mask);
 	new_action.sa_flags = 0;
-	sigaction (SIGCHLD, &new_action, NULL);
+	sigaction(SIGCHLD, &new_action, NULL);
 
 	m_ok = true;
 	while(m_ok) {
@@ -111,6 +146,14 @@ int EventDispatcher::run()
 			if(it != m_children.end())
 				it->second->dead(status);
 			m_deads.pop();
+		}
+
+		while(!m_sigq.empty()) {
+			int sig = m_sigq.front();
+			m_sigq.pop();
+			std::map<int, SignalHandler *>::const_iterator it = m_signals.find(sig);
+			if(it != m_signals.end())
+				it->second->signal(sig);
 		}
 
 		/* dispatch timeouts */
