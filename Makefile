@@ -15,7 +15,7 @@ all: .depend ${BINS}
 .o.so:
 	gcc -g -Wall -pipe -shared -nostartfiles -nostdlib -o $@ $^
 
-supervisor: supervisor.o family.o childprocess.o eventdispatcher.o config.o logger.o daemonize.o
+supervisor: supervisor.o family.o childprocess.o eventdispatcher.o config.o logger.o daemonize.o pidfile.o
 	g++ -g -Wall -pipe -o $@ $^
 
 #---------------------------------------------------------------------------

@@ -7,6 +7,7 @@
 #include "family.hpp"
 #include "eventdispatcher.hpp"
 #include "config.hpp"
+#include "pidfile.hpp"
 
 #include "daemonize.h"
 
@@ -46,6 +47,9 @@ bool Supervisor::configure(const std::string & var, const std::string & value)
 	} else if(var == "background") {
 		m_background = Config::to_bool(value);
 		return true;
+	} else if(var == "pidfile") {
+		m_pidfile = value;
+		return true;
 	}
 	return false;
 }
@@ -60,6 +64,13 @@ ConfTarget * Supervisor::confcontext(const std::string & ctx, bool brackets)
 	if(it != m_fams.end())
 		return it->second;
 	return NULL;
+}
+
+int Supervisor::run()
+{
+	Pidfile pidfile(m_pidfile.c_str());
+	autostart();
+	return disp.run();
 }
 
 int main(int argc, char * argv[])
@@ -93,8 +104,7 @@ int main(int argc, char * argv[])
 	if(super.background() || daemon) {
 		daemonize();
 	}
-	super.autostart();
-	return disp.run();
+	return super.run();
 }
 
 
