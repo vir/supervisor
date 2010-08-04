@@ -13,6 +13,12 @@
 # define XDEBUG(s)
 #endif
 
+// virtual destructors implementation
+AsyncReader::~AsyncReader() { }
+ChildProc::~ChildProc() { }
+TimerHandler::~TimerHandler() { }
+SignalHandler::~SignalHandler() { }
+
 EventDispatcher disp;
 
 void EventDispatcher::register_reader(int fd, AsyncReader * reader)

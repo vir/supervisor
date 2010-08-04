@@ -7,12 +7,14 @@
 class AsyncReader
 {
 	public:
+		virtual ~AsyncReader();
 		virtual int can_read(int fd)=0;
 };
 
 class ChildProc
 {
 	public:
+		virtual ~ChildProc();
 		virtual void dead(int status)=0;
 		virtual int kill(int signal)=0;
 };
@@ -20,12 +22,14 @@ class ChildProc
 class TimerHandler
 {
 	public:
+		virtual ~TimerHandler();
 		virtual void timeout()=0;
 };
 
 class SignalHandler
 {
 	public:
+		virtual ~SignalHandler();
 		virtual void signal(int signum)=0;
 };
 

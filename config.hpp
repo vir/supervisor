@@ -9,6 +9,7 @@
 class ConfTarget
 {
 	public:
+		virtual ~ConfTarget() { }
 		virtual bool configure(const std::string & var, const std::string & value)=0;
 		virtual ConfTarget * confcontext(const std::string & ctx, bool brackets);
 };
