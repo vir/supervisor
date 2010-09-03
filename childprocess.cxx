@@ -21,7 +21,7 @@ int ReadBuffer::do_read()
 
 bool ReadBuffer::readline(std::string & s)
 {
-	unsigned int pos = m_buf.find('\n');
+	size_t pos = m_buf.find('\n');
 	if(pos != std::string::npos) {
 		s = m_buf.substr(0, pos);
 		m_buf.erase(0, pos+1);

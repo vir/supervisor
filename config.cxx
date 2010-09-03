@@ -32,7 +32,7 @@ bool Config::parse_line(std::string line)
 		reset_context();
 		return change_context(context, true);
 	}
-	unsigned int eqpos = line.find('=');
+	size_t eqpos = line.find('=');
 	if(eqpos == std::string::npos)
 		return false; // no =
 	std::string key = line.substr(0, eqpos);
@@ -44,7 +44,7 @@ bool Config::parse_line(std::string line)
 	std::string save2 = m_curctx; // XXX ??? may be drop it ???
 	bool retval = false;
 	for(;;) {
-		unsigned int pos = key.find('.');
+		size_t pos = key.find('.');
 		if(pos == std::string::npos)
 			break;
 		if(!change_context(key.substr(0, pos)))
