@@ -20,7 +20,6 @@ void daemonize()
 	signal(SIGTSTP,SIG_IGN);
 	signal(SIGTTOU,SIG_IGN);
 	signal(SIGTTIN,SIG_IGN);
-	signal(SIGTERM,SIG_DFL);
 
 	sid = setsid();
 	if(sid < 0)
