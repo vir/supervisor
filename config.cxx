@@ -39,7 +39,7 @@ bool Config::parse_line(std::string line)
 	std::string val = line.substr(eqpos+1);
 	trim(key);
 	trim(val);
-	std::cout << "Config line: '" << key << "' = '" << val << "'" << std::endl;
+	//std::cout << "Config line: '" << key << "' = '" << val << "'" << std::endl;
 	ConfTarget * save = m_curtarget;
 	std::string save2 = m_curctx; // XXX ??? may be drop it ???
 	bool retval = false;
@@ -88,12 +88,12 @@ bool Config::change_context(const std::string & context, bool brackets)
 
 	ConfTarget * newctx = m_curtarget->confcontext(context, brackets);
 	if(newctx) {
-		std::cout << "Config context changed to " << context << std::endl;
+		//std::cout << "Config context changed to " << context << std::endl;
 		m_curctx = context; // XXX last part only
 		m_curtarget = newctx;
 		return true;
 	} else {
-		std::cout << "Can not change config context to " << context << std::endl;
+		//std::cout << "Can not change config context to " << context << std::endl;
 		return false;
 	}
 }

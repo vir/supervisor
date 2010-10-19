@@ -44,7 +44,7 @@ std::string Logger::log(const std::string & source, std::string tag, const std::
 	if(m_append_date || forcetimestamp)
 		ss << now() << " ";
 	ss << source << "[" << tag << "] " << msg << std::endl;
-	if(1)
+	if(!super.background())
 		std::cout << ss.str();
 	m_file << ss.str();
 	m_file.flush();
@@ -53,7 +53,7 @@ std::string Logger::log(const std::string & source, std::string tag, const std::
 
 bool Logger::configure(const std::string & var, const std::string & value)
 {
-	std::cout << "Logger::configure(" << var << ", " << value << ")" << std::endl;
+	//std::cout << "Logger::configure(" << var << ", " << value << ")" << std::endl;
 	if(var == "timestamp") {
 		m_append_date = Config::to_bool(value);
 		return true;

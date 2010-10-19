@@ -26,6 +26,7 @@ class Supervisor:public ConfTarget, public SignalHandler, public TimerHandler
 		State state() const { return m_state; }
 		const std::string & logdir() const { return m_logdir; }
 		bool background() const { return m_background; }
+		void background(bool b) { m_background = b; }
 		void logdir(const std::string & d) { m_logdir = d; }
 		Family * create_family(const std::string & name);
 		int run();

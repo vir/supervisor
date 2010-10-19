@@ -33,7 +33,8 @@ void Supervisor::autostart()
 
 void Supervisor::shutdown(bool restart)
 {
-	std::cout << "Requested " << (restart?"restart":"shutdown") << std::endl;
+	if(!background())
+		std::cout << "Requested " << (restart?"restart":"shutdown") << std::endl;
 	m_state = restart ? ST_RESTART : ST_SHUTDOWN;
 	std::map<std::string, Family *>::iterator it;
 	for(it = m_fams.begin(); it != m_fams.end(); it++) {
@@ -55,7 +56,8 @@ void Supervisor::timeout()
 	if(count_running()) {
 		disp.register_alarm(1, this); // wait for all children
 	} else {
-		std::cout << "All dead, good!" << std::endl;
+		if(!background())
+			std::cout << "All dead, good!" << std::endl;
 		disp.stop();
 	}
 }
@@ -138,7 +140,10 @@ int main(int argc, char * argv[])
 		std::cerr << "Can not open config file " << conffile << std::endl;
 		return -1;
 	}
-	if(super.background() || daemon) {
+	if(daemon)
+		super.background(true);
+
+	if(super.background()) {
 		daemonize();
 	}
 	int result = super.run();

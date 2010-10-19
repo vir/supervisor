@@ -163,7 +163,7 @@ void Family::timeout()
 
 bool Family::configure(const std::string & var, const std::string & value)
 {
-	std::cout << " Configure " << m_name << ": " << var << " = " << value << std::endl;
+	//std::cout << " Configure " << m_name << ": " << var << " = " << value << std::endl;
 	if(var == "cmd") {
 		cmd(value);
 		return true;
@@ -182,7 +182,7 @@ bool Family::configure(const std::string & var, const std::string & value)
 
 ConfTarget * Family::confcontext(const std::string & ctx, bool brackets)
 {
-	std::cout << "Family::confcontext(" << ctx << ", " << brackets << ")" << std::endl;
+	//std::cout << "Family::confcontext(" << ctx << ", " << brackets << ")" << std::endl;
 	if(ctx == "log") {
 		if(!m_logger)
 			m_logger = new Logger(m_name);
