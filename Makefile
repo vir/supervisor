@@ -23,7 +23,7 @@ supervisor: supervisor.o family.o childprocess.o eventdispatcher.o config.o logg
 clean:
 	-rm -f ${BINS} *.o .depend core
 
-install:
+install: supervisor
 	install -m 555 supervisor /usr/local/bin
 
 .depend:
