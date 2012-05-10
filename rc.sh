@@ -1,8 +1,7 @@
 #!/bin/sh
 #
-# (c) vir
-#
-# Last modified: 2009-06-17 18:06:01 +0400
+# Copyright (c) 2012 Vasily i. Redkin <vir@ctm.ru>
+# License: MIT (See LICENSE.txt or http://www.opensource.org/licenses/MIT)
 #
 
 D=/home/vir/supervisor

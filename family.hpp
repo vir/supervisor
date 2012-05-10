@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2012 Vasily i. Redkin <vir@ctm.ru>
+ * License: MIT (See LICENSE.txt or http://www.opensource.org/licenses/MIT)
+ */
 #ifndef FAMILY_HPP_INCLUDED
 #define FAMILY_HPP_INCLUDED
 
