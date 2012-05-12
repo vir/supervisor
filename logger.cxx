@@ -23,21 +23,32 @@ Logger::~Logger()
 static std::string now()
 {
 	char outstr[200];
-	time_t t;
 	struct tm *tmp;
 	const static char * format = "%Y-%m-%d %H:%M:%S";
+	int len;
+	time_t t;
 
+#if 0
 	t = time(NULL);
+#else
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	t = tv.tv_sec;
+#endif
 	tmp = localtime(&t);
 	if (tmp == NULL) {
 		perror("localtime");
 		return "";
 	}
 
-	if (strftime(outstr, sizeof(outstr), format, tmp) == 0) {
+	len = strftime(outstr, sizeof(outstr), format, tmp);
+	if (len == 0) {
 		fprintf(stderr, "strftime returned 0");
 		return "";
 	}
+#if 1
+	sprintf(outstr+len, ".%06ld", tv.tv_usec);
+#endif
 	return std::string(outstr);
 }
 
