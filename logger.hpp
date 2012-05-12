@@ -14,6 +14,7 @@ class Logger:public ConfTarget
 	private:
 		std::string m_name;
 		bool m_append_date;
+		bool m_usecs_timestamps;
 		std::string m_filename;
 		std::ofstream m_file;
 	public:
