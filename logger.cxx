@@ -4,6 +4,7 @@
  */
 #include "logger.hpp"
 #include "supervisor.hpp"
+#include <sys/time.h>
 #include <iostream>
 #include <sstream>
 
