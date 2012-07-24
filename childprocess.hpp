@@ -4,6 +4,7 @@
  */
 #ifndef CHILDPROCESS_HPP_INCLUDED
 #define CHILDPROCESS_HPP_INCLUDED
+#include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
