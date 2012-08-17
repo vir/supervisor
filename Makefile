@@ -30,7 +30,7 @@ install: supervisor
 	install -m 755 -d ${DESTDIR}${PREFIX}/bin
 	install -m 555 supervisor ${DESTDIR}${PREFIX}/bin
 	install -m 755 -d ${DESTDIR}${PREFIX}/share/doc
-	install -m 644 README.txt LICENSE.txt supervisor.conf ${DESTDIR}${PREFIX}/share/doc
+	install -m 644 README LICENSE.txt supervisor.conf ${DESTDIR}${PREFIX}/share/doc
 
 .depend:
 	gcc -MM -MG *.cxx >.depend
