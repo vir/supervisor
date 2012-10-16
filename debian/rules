@@ -100,7 +100,7 @@ binary-common:
 	dh_installman
 	dh_link
 #	dh_strip
-	dh_strip --dbg-package=supervisor-dbg
+	dh_strip --dbg-package=supervisor-daemon-dbg
 	dh_compress
 	dh_fixperms
 #	dh_perl

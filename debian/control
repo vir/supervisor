@@ -1,4 +1,4 @@
-Source: supervisor
+Source: supervisor-daemon
 Section: utils
 Priority: optional
 Maintainer: Vasily i. Redkin <vir@ctm.ru>
@@ -6,12 +6,12 @@ Build-Depends: build-essential, debhelper (>= 7)
 Standards-Version: 3.7.3
 Homepage: http://github.com/vir/supervisor
 
-Package: supervisor
+Package: supervisor-daemon
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Starts and restarts several "daemon" scripts with stdout and stderr redirected into log files with timestamps added.
 
-Package: supervisor-dbg
+Package: supervisor-daemon-dbg
 Section: devel
 Architecture: any
 Depends: supervisor (= ${Source-Version})

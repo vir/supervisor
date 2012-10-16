@@ -1,4 +1,4 @@
-supervisor (1.0.0) unstable; urgency=low
+supervisor-daemon (1.0.0) unstable; urgency=low
 
   * Initial Release.
 
