@@ -30,6 +30,7 @@ class Config
 		void register_context(const std::string & context, ConfTarget * target) { m_contexts[context] = target; }
 		void unregister_context(const std::string & context) { m_contexts.erase(context); }
 		void default_context(ConfTarget * target) { m_deftarget = target; if(!m_curtarget) m_curtarget = m_deftarget; }
+		bool load_confdir(const std::string & path);
 		bool read_file(const std::string & fname);
 		bool parse_line(std::string line);
 		bool change_context(const std::string & context, bool autocreatefamily = false);

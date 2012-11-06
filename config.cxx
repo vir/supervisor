@@ -5,6 +5,7 @@
 #include "config.hpp"
 #include "supervisor.hpp"
 #include <iostream>
+#include <dirent.h>
 
 ConfTarget * ConfTarget::confcontext(const std::string & ctx, bool brackets)
 {
@@ -22,7 +23,34 @@ void trim(std::string & str)
 		pos = str.find_first_not_of(whitespace);
 		if(pos != std::string::npos) str.erase(0, pos);
 	} else
-	 	str.erase(str.begin(), str.end());
+		str.erase(str.begin(), str.end());
+}
+
+bool Config::load_confdir(const std::string & path)
+{
+	DIR * d = opendir(path.c_str());
+	if(! d) {
+		perror(path.c_str());
+		return false;
+	}
+	dirent * e;
+	while((e = readdir(d))) {
+		if(e->d_type != DT_REG)
+			continue;
+		std::string p(path);
+		if(*p.rbegin() != '/')
+			p += '/';
+		p += e->d_name;
+		if(p.length() > 5 && p.substr(p.length() - 5) != ".conf")
+			continue;
+		if(0 != access(path.c_str(), R_OK))
+			continue;
+		reset_context();
+		if(! read_file(p))
+			return false;
+	}
+	closedir(d);
+	return true;
 }
 
 bool Config::parse_line(std::string line)
@@ -35,6 +63,12 @@ bool Config::parse_line(std::string line)
 		trim(context);
 		reset_context();
 		return change_context(context, true);
+	}
+	if(line.substr(0, 8) == "confdir ") {
+		size_t pos = line.find_first_not_of(" \t", 8);
+		std::string path = line.substr(pos);
+		trim(path);
+		return load_confdir(path);
 	}
 	size_t eqpos = line.find('=');
 	if(eqpos == std::string::npos)
