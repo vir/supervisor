@@ -4,16 +4,17 @@
 BINS = supervisor
 DESTDIR ?=
 PREFIX ?= /usr/local
+CFLAGS=-DSYSCONFDIR=\"@sysconfdir@\" @DEFS@
 
 all: .depend ${BINS}
 
 .SUFFIXES: .cxx .so
 
 .c.o:
-	gcc -g -Wall -pipe -c -o $*.o $<
+	gcc -g -Wall -pipe -c $(CFLAGS) -o $*.o $<
 
 .cxx.o:
-	g++ -g -Wall -pipe -c -o $*.o $<
+	g++ -g -Wall -pipe -c $(CFLAGS) -o $*.o $<
         
 .o.so:
 	gcc -g -Wall -pipe -shared -nostartfiles -nostdlib -o $@ $^

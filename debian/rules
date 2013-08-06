@@ -16,12 +16,17 @@
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
-configure:
+defines.h.in: configure.in
+	autoheader
+
+configure: configure.in
+	autoconf
 
 config: configure-stamp
-configure-stamp: configure
+configure-stamp: configure defines.h.in Makefile.in
 	dh_testdir
 	# Add here commands to configure the package.
+	./configure --enable-name-heuristic
 	touch configure-stamp
 
 #Architecture

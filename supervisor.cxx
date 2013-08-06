@@ -2,6 +2,7 @@
  * Copyright (c) 2012 Vasily i. Redkin <vir@ctm.ru>
  * License: MIT (See LICENSE.txt or http://www.opensource.org/licenses/MIT)
  */
+#include "defines.h"
 #include "supervisor.hpp"
 
 #include <string>
@@ -17,8 +18,16 @@
 
 #include <unistd.h>
 #include <iostream>
+#include <string.h>
 
 Supervisor super;
+
+Supervisor::Supervisor()
+	: m_state(ST_RUN)
+	, m_logdir(".")
+	, m_background(false)
+{
+}
 
 Family * Supervisor::create_family(const std::string & name)
 {
@@ -114,9 +123,22 @@ int Supervisor::run()
 	return disp.run();
 }
 
+void Supervisor::basename(const char * exe)
+{
+	const char * t = strrchr(exe, '/');
+	if(t)
+		exe = t + 1;
+#ifdef NAME_HEURISTIC
+	size_t len = strcspn(exe, "-_");
+	if(exe[len] && exe[len + 1])
+		exe += len + 1;
+#endif
+	m_basename = exe;
+}
+
 int main(int argc, char * argv[])
 {
-	const char * conffile = "supervisor.conf";
+	const char * conffile = NULL;
 	int daemon = 0;
 	int ch;
 	while ((ch = getopt(argc, argv, "?hc:D")) != -1) {
@@ -138,6 +160,21 @@ int main(int argc, char * argv[])
 	int new_argc = argc - optind;
 	char * new_argv[] = &argv[optind];
 #endif
+
+	super.basename(argv[0]);
+#ifdef NAME_HEURISTIC
+	std::string conffile_s;
+	if(! conffile)
+	{
+		conffile_s = SYSCONFDIR;
+		conffile_s += "/";
+		conffile_s += super.basename();
+		conffile_s += "/supervisor.conf";
+		conffile = conffile_s.c_str();
+	}
+#endif
+	if(! conffile)
+		conffile = "supervisor.conf";
 
 	config.default_context(&super);
 	if(!config.read_file(conffile)) {

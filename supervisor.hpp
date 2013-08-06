@@ -20,18 +20,21 @@ class Supervisor:public ConfTarget, public SignalHandler, public TimerHandler
 		std::string m_logdir;
 		std::string m_pidfile;
 		bool m_background;
+		std::string m_basename;
 	protected:
 		void autostart();
 		virtual void signal(int signum);
 		virtual void timeout();
 	public:
-		Supervisor():m_state(ST_RUN),m_logdir("."),m_background(false) { }
+		Supervisor();
 		virtual ~Supervisor() { }
 		State state() const { return m_state; }
 		const std::string & logdir() const { return m_logdir; }
+		const std::string & basename() const { return m_basename; }
 		bool background() const { return m_background; }
 		void background(bool b) { m_background = b; }
 		void logdir(const std::string & d) { m_logdir = d; }
+		void basename(const char * exe);
 		Family * create_family(const std::string & name);
 		int run();
 		void shutdown(bool restart = false);

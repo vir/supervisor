@@ -1,3 +1,9 @@
+supervisor-daemon (1.0.1) UNRELEASED; urgency=low
+
+  * Autoconf added. Name heuristic added.
+
+ -- Vasily i. Redkin <vir@vir.otvt.ru>  Tue, 06 Aug 2013 15:10:03 +0400
+
 supervisor-daemon (1.0.0) unstable; urgency=low
 
   * Initial Release.
