@@ -6,6 +6,7 @@
 #include "supervisor.hpp"
 #include <iostream>
 #include <dirent.h>
+#include <unistd.h>
 
 ConfTarget * ConfTarget::confcontext(const std::string & ctx, bool brackets)
 {

@@ -1,3 +1,10 @@
+supervisor-daemon (1.0.2) UNRELEASED; urgency=low
+
+  * Fix compilation on wheezy and sid.
+  * Short note on new behaviour added to README file.
+
+ -- Vasily i. Redkin <vir@vir.otvt.ru>  Tue, 06 Aug 2013 16:24:43 +0400
+
 supervisor-daemon (1.0.1) UNRELEASED; urgency=low
 
   * Autoconf added. Name heuristic added.

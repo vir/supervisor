@@ -5,6 +5,14 @@
 Starts and restarts several "daemon" scripts with stdout and stderr redirected
 into log files with timestamps added.
 
+				 Name Heuristic
+				 --------------
+
+If supervisor is started as /usr/local/bin/start-something, configuration file
+will will be loaded from /usr/local/etc/something/supervisor.conf.
+
+To use this feature, use --enable-name-heuristic configure script option.
+
 
 			    supervisor.conf sample
 			    ----------------------
