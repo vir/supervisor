@@ -189,8 +189,15 @@ ConfTarget * Family::confcontext(const std::string & ctx, bool brackets)
 	//std::cout << "Family::confcontext(" << ctx << ", " << brackets << ")" << std::endl;
 	if(ctx == "log") {
 		if(!m_logger)
-			m_logger = new Logger(m_name);
-		return m_logger;
+		{
+			try {
+				m_logger = new Logger(m_name);
+				return m_logger;
+			}
+			catch(std::exception e) {
+				std::cerr << "Error creating logger " << m_name << ": " << e.what() << std::endl;
+			}
+		}
 	}
 	return NULL;
 }
