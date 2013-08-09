@@ -178,7 +178,7 @@ int main(int argc, char * argv[])
 
 	config.default_context(&super);
 	if(!config.read_file(conffile)) {
-		std::cerr << "Can not open config file " << conffile << std::endl;
+		std::cerr << "Error loading configuration file " << conffile << std::endl;
 		return -1;
 	}
 	if(daemon)
