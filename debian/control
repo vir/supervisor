@@ -14,7 +14,7 @@ Description: Starts and restarts several "daemon" scripts with stdout and stderr
 Package: supervisor-daemon-dbg
 Section: devel
 Architecture: any
-Depends: supervisor (= ${Source-Version})
+Depends: supervisor-daemon (= ${Source-Version})
 Recommends: gdb
 Description: Debug symbols for the supervisor
 
