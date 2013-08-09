@@ -1,3 +1,9 @@
+supervisor-daemon (1.0.4) UNRELEASED; urgency=low
+
+  * Fix crash when can't create log file
+
+ -- Vasily i. Redkin <vir@vir.otvt.ru>  Fri, 09 Aug 2013 12:26:21 +0400
+
 supervisor-daemon (1.0.3) UNRELEASED; urgency=low
 
   * dbg symbols package fix
