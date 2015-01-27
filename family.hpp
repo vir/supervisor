@@ -40,6 +40,7 @@ class Family:public TimerHandler, public ConfTarget
 		bool stop();
 		bool restart();
 		bool autostart();
+		void open_log(bool force_reopen);
 		void celebrate_child_death(ChildProcess * cp, int status);
 		void output(char stream, const std::string & s, bool forcetimestamp = false);
 		virtual void timeout();

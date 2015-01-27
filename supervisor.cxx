@@ -36,6 +36,14 @@ Family * Supervisor::create_family(const std::string & name)
 	return f;
 }
 
+void Supervisor::open_logs(bool reopen)
+{
+	std::map<std::string, Family *>::iterator it;
+	for(it = m_fams.begin(); it != m_fams.end(); it++) {
+		it->second->open_log(reopen);
+	}
+}
+
 void Supervisor::autostart()
 {
 	std::map<std::string, Family *>::iterator it;
@@ -77,6 +85,7 @@ void Supervisor::timeout()
  
 bool Supervisor::configure(const std::string & var, const std::string & value)
 {
+	//std::cout << "Supervisor::configure(" << var << ", " << value << ")" << std::endl;
 	if(var == "logdir") {
 		m_logdir = value;
 		return true;
@@ -139,9 +148,10 @@ void Supervisor::basename(const char * exe)
 int main(int argc, char * argv[])
 {
 	const char * conffile = NULL;
+	std::vector<const char *> overrides;
 	int daemon = 0;
 	int ch;
-	while ((ch = getopt(argc, argv, "?hc:D")) != -1) {
+	while ((ch = getopt(argc, argv, "?hc:Ds:")) != -1) {
 		switch (ch) {
 			case 'c':
 				conffile = optarg;
@@ -149,10 +159,13 @@ int main(int argc, char * argv[])
 			case 'D':
 				daemon++;
 				break;
+			case 's':
+				overrides.push_back(optarg);
+				break;
 			case 'h':
 			case '?':
 			default:
-				std::cout << "Usage: " << argv[0] << " [-h] [-D] [-c /path/to/supervisor.conf]" << std::endl;
+				std::cout << "Usage: " << argv[0] << " [-h] [-D] [-c /path/to/supervisor.conf] [-s confparam=value...]" << std::endl;
 				return 0;
 		}
 	}
@@ -181,8 +194,21 @@ int main(int argc, char * argv[])
 		std::cerr << "Error loading configuration file " << conffile << std::endl;
 		return -1;
 	}
+	config.reset_context();
+	for(std::vector<const char *>::const_iterator it = overrides.begin(); it != overrides.end(); ++it) {
+		if(!config.parse_line(*it))
+			std::cerr << "Can not parse config override line '" << *it << "'" << std::endl;
+	}
 	if(daemon)
 		super.background(true);
+
+	try {
+		super.open_logs(false);
+	}
+	catch(std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+		return -2;
+	}
 
 	if(super.background()) {
 		daemonize();

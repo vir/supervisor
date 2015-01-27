@@ -7,18 +7,33 @@
 #include <sys/time.h>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 Logger::Logger(const std::string & name)
 	:m_name(name), m_append_date(true), m_usecs_timestamps(false)
 {
-	m_filename = super.logdir() + "/" + m_name + ".log";
-	m_file.exceptions ( std::ofstream::eofbit | std::ofstream::failbit | std::ofstream::badbit );
-	m_file.open(m_filename.c_str(), std::ios::out | std::ios::app);
 }
 
 Logger::~Logger()
 {
-	m_file.close();
+	close();
+}
+
+void Logger::open()
+{
+	if(m_file.is_open())
+		return;
+	m_filename = super.logdir() + "/" + m_name + ".log";
+	//m_file.exceptions ( std::ofstream::eofbit | std::ofstream::failbit | std::ofstream::badbit );
+	m_file.open(m_filename.c_str(), std::ios::out | std::ios::app);
+	if(m_file.fail())
+		throw std::runtime_error(std::string("Can not open log file ") + m_filename);
+}
+
+void Logger::close()
+{
+	if(m_file.is_open())
+		m_file.close();
 }
 
 static std::string now(bool usecs = false)

@@ -39,6 +39,7 @@ class Supervisor:public ConfTarget, public SignalHandler, public TimerHandler
 		int run();
 		void shutdown(bool restart = false);
 		unsigned int count_running() const;
+		void open_logs(bool reopen);
 		virtual bool configure(const std::string & var, const std::string & value);
 		virtual ConfTarget * confcontext(const std::string & ctx, bool brackets);
 };

@@ -49,6 +49,7 @@ Family::Family(const std::string & name)
 	:m_state(ST_RUN), m_active(0), m_name(name), m_autostart(true), m_autorestart(true), m_restart_delay(1), m_logger(0), m_logtailsize(100)
 {
 	config.register_context(name, this);
+	m_logger = new Logger(m_name);
 }
 
 Family::~Family()
@@ -83,8 +84,7 @@ bool Family::start()
 {
 	if(m_active)
 		return false;
-	if(!m_logger)
-		m_logger = new Logger(m_name);
+	m_logger->open();
 	m_active = new ChildProcess(this);
 	return m_active->start();
 }
@@ -165,6 +165,13 @@ void Family::timeout()
 	}
 }
 
+void Family::open_log(bool force_reopen)
+{
+	if(force_reopen)
+		m_logger->close();
+	m_logger->open();
+}
+
 bool Family::configure(const std::string & var, const std::string & value)
 {
 	//std::cout << " Configure " << m_name << ": " << var << " = " << value << std::endl;
@@ -187,14 +194,6 @@ bool Family::configure(const std::string & var, const std::string & value)
 ConfTarget * Family::confcontext(const std::string & ctx, bool brackets)
 {
 	if(ctx == "log") {
-		if(!m_logger) {
-			try {
-				m_logger = new Logger(m_name);
-			}
-			catch(std::exception& e) {
-				std::cerr << "Error creating logger " << m_name << ": " << e.what() << std::endl;
-			}
-		}
 		return m_logger;
 	}
 	return NULL;

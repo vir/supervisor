@@ -20,6 +20,8 @@ class Logger:public ConfTarget
 	public:
 		Logger(const std::string & name);
 		virtual ~Logger();
+		void open();
+		void close();
 		std::string log(const std::string & source, std::string tag, const std::string msg, bool forcetimestamp = false);
 		virtual bool configure(const std::string & var, const std::string & value);
 };
