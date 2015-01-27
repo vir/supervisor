@@ -1,5 +1,7 @@
 *.o
 supervisor
 .depend
+debian/*/
+
 
 
