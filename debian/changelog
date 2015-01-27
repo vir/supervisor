@@ -1,3 +1,10 @@
+supervisor-daemon (1.0.5) UNRELEASED; urgency=low
+
+  * Allow overriding of configuration parameters from command line
+  * Fix log file options parsing
+
+ -- Vasily i. Redkin <vir@ctm.ru>  Tue, 27 Jan 2015 18:12:42 +0300
+
 supervisor-daemon (1.0.4) UNRELEASED; urgency=low
 
   * Fix crash when can't create log file
