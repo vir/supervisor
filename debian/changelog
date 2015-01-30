@@ -1,3 +1,10 @@
+supervisor-daemon (1.0.6) UNRELEASED; urgency=medium
+
+  * Put all child processes into their own process groups so child will not
+    cause disaster by issuing 'kill -KILL -$$'
+
+ -- Vasily i. Redkin <vir@ctm.ru>  Fri, 30 Jan 2015 13:12:26 +0300
+
 supervisor-daemon (1.0.5) UNRELEASED; urgency=low
 
   * Allow overriding of configuration parameters from command line
