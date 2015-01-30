@@ -32,7 +32,7 @@ class Family:public TimerHandler, public ConfTarget
 	public:
 		Family(const std::string & name);
 		virtual ~Family();
-		std::string cmd() const { return m_cmd; }
+		const std::string& cmd() const { return m_cmd; }
 		void cmd(const std::string & s) { m_cmd = s; }
 		std::string name() const { return m_name; }
 		State state() const { return m_state; }

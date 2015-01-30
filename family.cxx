@@ -136,20 +136,16 @@ void Family::celebrate_child_death(ChildProcess * cp, int status)
 		ss << " exited, status=" << WEXITSTATUS(status);
 	} else if (WIFSIGNALED(status)) {
 		ss << " killed by signal " << WTERMSIG(status)
-		 	<< " (" << signal_name(WTERMSIG(status)) << ")";
+			<< " (" << signal_name(WTERMSIG(status)) << ")";
 	} else if (WIFSTOPPED(status)) {
 		ss << " stopped by signal " << WSTOPSIG(status)
-		 	<< " (" << signal_name(WSTOPSIG(status)) << ")";
+			<< " (" << signal_name(WSTOPSIG(status)) << ")";
 	} else if (WIFCONTINUED(status)) {
 		ss << "continued";
 	}
 
 	output('S', ss.str(), true);
 	delete cp;
-	/* TODO:
-	 * log message about death with status explanation
-	 * request restart after configured timeout
-	 */
 	if((m_state == ST_RUN && m_autorestart) || m_state == ST_RESTART) {
 		disp.register_alarm(m_restart_delay, this);
 		m_state = ST_RUN;

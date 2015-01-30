@@ -150,8 +150,7 @@ int EventDispatcher::run()
 		while(!m_deads.empty()) {
 			int pid = m_deads.front().first;
 			int status = m_deads.front().second;
-			std::pair<int, int> res = m_deads.front();
-			XDEBUG(std::cout << "Registered death of process " << res.first << ", status " << res.second << std::endl);
+			XDEBUG(std::cout << "Registered death of process " << pid << ", status " << status << std::endl);
 			std::map<int, ChildProc *>::iterator it = m_children.find(pid);
 			if(it != m_children.end())
 				it->second->dead(status);
