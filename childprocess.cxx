@@ -38,15 +38,30 @@ bool ReadBuffer::readline(std::string & s)
 
 bool ChildProcess::start()
 {
-	std::string cmd = m_family->cmd();
+	std::vector<char> cmdbuf(m_family->cmd().begin(), m_family->cmd().end());
+	cmdbuf.push_back('\0');
+	std::vector<char *> args;
+	char * t = strtok(&cmdbuf[0], " \t");
+	if(!t)
+		exit(-1);
+	args.push_back(t);
+	while((t = strtok(NULL, " \t"))) { args.push_back(t); }
+	XDEBUG(for(int i = 0; i < args.size(); i++) { std::cout << "Arg" << i << ": " << args[i] << std::endl; })
+	args.push_back(NULL);
+
 	int fdo[2], fde[2];
 	pipe(fdo);
 	pipe(fde);
 	XDEBUG(std::cout << "Pipes: o: " << fdo[0] << ", " << fdo[1] << ", e: " << fde[0] << ", " << fde[1] << std::endl);
 	int pid = fork();
-	if(pid < 0)
+	if(pid < 0) {
+		perror("fork");
 		return false;
+	}
 	if(pid) {
+		if(m_setpgid)
+			setpgid(pid, 0);
+
 		m_pid = pid;
 		m_fdo = fdo[0];
 		m_fde = fde[0];
@@ -59,6 +74,16 @@ bool ChildProcess::start()
 		disp.register_reader(m_fde, this);
 		disp.register_chldproc(pid, this);
 	} else {
+		if(m_setpgid)
+			setpgid(0, 0);
+
+		signal(SIGINT,  SIG_DFL);
+		signal(SIGQUIT, SIG_DFL);
+		signal(SIGTSTP, SIG_DFL);
+		signal(SIGTTIN, SIG_DFL);
+		signal(SIGTTOU, SIG_DFL);
+		signal(SIGCHLD, SIG_DFL);
+
 		close(fdo[0]);
 		close(fde[0]);
 		dup2(fdo[1], 1);
@@ -66,29 +91,10 @@ bool ChildProcess::start()
 		close(fdo[1]);
 		close(fde[1]);
 
-#if 0
-		int i;
-		for(i = 0; i < 5; i++) {
-			sleep(2);
-			write(1, "Hello\n", 6);
-		}
-		exit(0);
-#else
-		std::vector<char> cmdbuf(cmd.begin(), cmd.end());
-		cmdbuf.push_back('\0');
-		std::vector<char *> args;
-		char * t = strtok(&cmdbuf[0], " \t");
-		if(!t)
-			exit(-1);
-		args.push_back(t);
-		while((t = strtok(NULL, " \t"))) { args.push_back(t); }
-		XDEBUG(for(int i = 0; i < args.size(); i++) { std::cout << "Arg" << i << ": " << args[i] << std::endl; })
-		args.push_back(NULL);
 		execvp(args[0], &args[0]);
 		perror("execvp");
 		sleep(1);
-		exit(-1);
-#endif
+		_exit(-1);
 	}
 	return false;
 }
@@ -138,6 +144,8 @@ void ChildProcess::dead(int status)
 	}
 	disp.unregister_childproc(m_pid);
 	m_family->celebrate_child_death(this, status);
+	if(m_setpgid)
+		::kill(-m_pid, SIGKILL); // XXX
 }
 
 int ChildProcess::kill(int signal)

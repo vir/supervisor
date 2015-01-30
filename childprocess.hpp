@@ -50,8 +50,9 @@ class ChildProcess:public AsyncReader, public ChildProc
 		Family * m_family;
 		ReadBuffer m_bufo;
 		ReadBuffer m_bufe;
+		bool m_setpgid;
 	public:
-		ChildProcess(Family * f):m_family(f) { }
+		ChildProcess(Family * f):m_family(f), m_setpgid(true) { }
 		virtual ~ChildProcess() { }
 		int pid() const { return m_pid; }
 		bool start();
