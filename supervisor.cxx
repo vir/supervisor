@@ -73,6 +73,9 @@ void Supervisor::shutdown(bool restart)
 
 void Supervisor::signal(int signum)
 {
+#ifdef USE_SYSLOG
+	::syslog(LOG_NOTICE, "Got signal %d (%s)", signum, strsignal(signum));
+#endif
 	if(signum == SIGHUP)
 		shutdown(true);
 	else

@@ -119,7 +119,7 @@ void Family::output(char stream, const std::string & s, bool forcetimestamp)
 {
 #ifdef USE_SYSLOG
 	if(stream == 'S')
-		::syslog(LOG_NOTICE, "%s: %s", m_name.c_str(), s.c_str());
+		::syslog(LOG_NOTICE, "(%s) %s", m_name.c_str(), s.c_str());
 #endif
 	if(m_logger) {
 		std::string ll = m_logger->log(m_name, std::string(&stream, 1), s, forcetimestamp);
