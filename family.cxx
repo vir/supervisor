@@ -2,12 +2,17 @@
  * Copyright (c) 2012 Vasily i. Redkin <vir@ctm.ru>
  * License: MIT (See LICENSE.txt or http://www.opensource.org/licenses/MIT)
  */
+#include "defines.h"
 #include "family.hpp"
 #include "childprocess.hpp"
 #include "supervisor.hpp"
 #include "logger.hpp"
 #include <iostream>
 #include <sys/wait.h> // for exit status explanation
+
+#ifdef USE_SYSLOG
+# include <syslog.h>
+#endif
 #if 0
 #include <signal.h> // for sys_siglist (signal "names")
 //	extern const char *const sys_siglist[];
@@ -112,6 +117,10 @@ bool Family::autostart()
 
 void Family::output(char stream, const std::string & s, bool forcetimestamp)
 {
+#ifdef USE_SYSLOG
+	if(stream == 'S')
+		::syslog(LOG_NOTICE, "%s: %s", m_name.c_str(), s.c_str());
+#endif
 	if(m_logger) {
 		std::string ll = m_logger->log(m_name, std::string(&stream, 1), s, forcetimestamp);
 //		m_logtail.push_back(ll); XXX XXX XXX

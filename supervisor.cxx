@@ -204,7 +204,7 @@ int main(int argc, char * argv[])
 	if(!config.read_file(conffile)) {
 		std::cerr << "Error loading configuration file " << conffile << std::endl;
 #ifdef USE_SYSLOG
-		::syslog(LOG_ERR, "Error loading configuration file %s", conffile.c_str());
+		::syslog(LOG_ERR, "Error loading configuration file %s", conffile);
 #endif
 		return -1;
 	}
