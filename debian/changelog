@@ -1,3 +1,9 @@
+supervisor-daemon (1.0.7) UNRELEASED; urgency=medium
+
+  * Syslog logging added (only supervisor startup and shutdown)
+
+ -- Vasily i. Redkin <vir@ctm.ru>  Mon, 02 Mar 2015 12:27:42 +0300
+
 supervisor-daemon (1.0.6) UNRELEASED; urgency=medium
 
   * Put all child processes into their own process groups so child will not

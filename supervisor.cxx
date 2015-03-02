@@ -20,6 +20,10 @@
 #include <iostream>
 #include <string.h>
 
+#ifdef USE_SYSLOG
+# include <syslog.h>
+#endif
+
 Supervisor super;
 
 Supervisor::Supervisor()
@@ -56,6 +60,9 @@ void Supervisor::shutdown(bool restart)
 {
 	if(!background())
 		std::cout << "Requested " << (restart?"restart":"shutdown") << std::endl;
+#ifdef USE_SYSLOG
+	::syslog(LOG_NOTICE, "Requested %s", (restart?"restart":"shutdown"));
+#endif
 	m_state = restart ? ST_RESTART : ST_SHUTDOWN;
 	std::map<std::string, Family *>::iterator it;
 	for(it = m_fams.begin(); it != m_fams.end(); it++) {
@@ -137,6 +144,10 @@ void Supervisor::basename(const char * exe)
 	const char * t = strrchr(exe, '/');
 	if(t)
 		exe = t + 1;
+#ifdef USE_SYSLOG
+	::openlog(exe, 0, LOG_DAEMON);
+	::syslog(LOG_INFO, "Started");
+#endif
 #ifdef NAME_HEURISTIC
 	size_t len = strcspn(exe, "-_");
 	if(exe[len] && exe[len + 1])
@@ -192,6 +203,9 @@ int main(int argc, char * argv[])
 	config.default_context(&super);
 	if(!config.read_file(conffile)) {
 		std::cerr << "Error loading configuration file " << conffile << std::endl;
+#ifdef USE_SYSLOG
+		::syslog(LOG_ERR, "Error loading configuration file %s", conffile.c_str());
+#endif
 		return -1;
 	}
 	config.reset_context();
@@ -207,6 +221,9 @@ int main(int argc, char * argv[])
 	}
 	catch(std::exception& e) {
 		std::cerr << "Error: " << e.what() << std::endl;
+#ifdef USE_SYSLOG
+		::syslog(LOG_ERR, "Got exception: %s", e.what());
+#endif
 		return -2;
 	}
 
@@ -215,8 +232,15 @@ int main(int argc, char * argv[])
 	}
 	int result = super.run();
 	if(super.state() == Supervisor::ST_RESTART) {
+#ifdef USE_SYSLOG
+	::syslog(LOG_INFO, "Restarting");
+#endif
 		execvp(argv[0], argv);
 	}
+#ifdef USE_SYSLOG
+	::syslog(LOG_INFO, "Exiting, rc: %d", result);
+	closelog();
+#endif
 	return result;
 }
 

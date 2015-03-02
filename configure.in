@@ -10,6 +10,12 @@ AS_IF([test "x$enable_name_heuristic" = "xyes"], [
 ])
 AC_SUBST(NAME_HEURISTIC)
 
+AC_ARG_ENABLE(syslog, AC_HELP_STRING([--enable-syslog], [Enable logging via syslog (default: enabled)]))
+AS_IF([test "x$enable_syslog" != "xno"], [
+	AC_DEFINE([USE_SYSLOG], [1], [Enable logging via syslog])
+])
+AC_SUBST(USE_SYSLOG)
+
 # AC_CONFIG_FILES, AC_CONFIG_HEADERS, AC_CONFIG_COMMANDS and AC_CONFIG_LINK
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_HEADERS([defines.h])
