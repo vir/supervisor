@@ -1,6 +1,13 @@
+supervisor-daemon (1.0.10) UNRELEASED; urgency=medium
+
+  * Logging of process ID added (enabled if log.pid set to true or
+    if several copies of process started).
+
+ -- Vasily i. Redkin <vir@ctm.ru>  Mon, 01 Aug 2016 16:03:17 +0300
+
 supervisor-daemon (1.0.9) UNRELEASED; urgency=medium
 
-  * Several copues of process can now be started (clones = N in config)
+  * Several copies of process can now be started (clones = N in config)
 
  -- Vasily i. Redkin <vir@ctm.ru>  Mon, 01 Aug 2016 14:01:52 +0300
 
