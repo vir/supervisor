@@ -107,7 +107,7 @@ bool Config::read_file(const std::string & fname)
 		return false;
 	while(getline(f, line)) {
 		if(!parse_line(line)) {
-			std::cerr << "Error in " << fname << " line " << linenum << std::endl;
+			std::cerr << "Error in " << fname << " line " << linenum << ": " << line << std::endl;
 			result = false;
 		}
 		linenum++;
