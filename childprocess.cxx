@@ -73,6 +73,7 @@ bool ChildProcess::start()
 		disp.register_reader(m_fdo, this);
 		disp.register_reader(m_fde, this);
 		disp.register_chldproc(pid, this);
+		return true;
 	} else {
 		if(m_setpgid)
 			setpgid(0, 0);

@@ -6,6 +6,7 @@
 #define FAMILY_HPP_INCLUDED
 
 #include <string>
+#include <set>
 #include "eventdispatcher.hpp"
 #include "config.hpp"
 
@@ -18,7 +19,7 @@ class Family:public TimerHandler, public ConfTarget
 		enum State { ST_RUN, ST_SHUTDOWN, ST_RESTART };
 	private:
 		State m_state;
-		ChildProcess * m_active;
+		std::set<ChildProcess *> m_active;
 		std::string m_name;
 		std::string m_cmd;
 		bool m_autostart;
@@ -28,6 +29,7 @@ class Family:public TimerHandler, public ConfTarget
 		std::deque<std::string> m_logtail;
 		unsigned int m_logtailsize;
 		unsigned int m_shutdownphase;
+		unsigned int m_clones;
 		void shutdown(bool initial = true);
 	public:
 		Family(const std::string & name);

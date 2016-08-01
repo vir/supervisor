@@ -10,6 +10,12 @@
 #include <iostream>
 #include <sys/wait.h> // for exit status explanation
 
+#if 1
+# define XDEBUG(a) a
+#else
+# define XDEBUG(s)
+#endif
+
 #ifdef USE_SYSLOG
 # include <syslog.h>
 #endif
@@ -51,7 +57,10 @@ static std::string now()
 
 
 Family::Family(const std::string & name)
-	:m_state(ST_RUN), m_active(0), m_name(name), m_autostart(true), m_autorestart(true), m_restart_delay(1), m_logger(0), m_logtailsize(100)
+	:m_state(ST_RUN), m_name(name)
+	, m_autostart(true), m_autorestart(true), m_restart_delay(1)
+	, m_logger(0), m_logtailsize(100)
+	, m_clones(1)
 {
 	config.register_context(name, this);
 	m_logger = new Logger(m_name);
@@ -59,6 +68,11 @@ Family::Family(const std::string & name)
 
 Family::~Family()
 {
+	if(! m_active.empty()) {
+		std::ostringstream ss;
+		ss << "WARNING: Family " << m_name << " terminated with " << m_active.size() << " alive children";
+		output('S', ss.str(), true);
+	}
 	config.unregister_context(m_name);
 	delete m_logger;
 }
@@ -66,7 +80,7 @@ Family::~Family()
 void Family::shutdown(bool initial)
 {
 	static const int killseq[] = { SIGINT, SIGTERM, SIGTERM, SIGTERM, SIGKILL, SIGKILL, 0 };
-	if(!m_active)
+	if(m_active.empty())
 		return;
 	if(initial) {
 		m_shutdownphase = 0;
@@ -77,21 +91,31 @@ void Family::shutdown(bool initial)
 		std::stringstream ss;
 		ss << "Sending signal " << sig;
 		output('S', ss.str(), true);
-		m_active->kill(sig);
+		for(std::set<ChildProcess *>::iterator it = m_active.begin(); it != m_active.end(); ++it)
+			(*it)->kill(sig);
 		m_shutdownphase++;
 		disp.register_alarm(2, this);
 	} else {
-		output('S', "Can not kill child!!! Giving up.", true);
+		output('S', "Can not kill children!!! Giving up.", true);
 	}
 }
 
 bool Family::start()
 {
-	if(m_active)
-		return false;
+	if(m_active.size() > m_clones)
+		return true;
+	unsigned int count = m_clones - m_active.size();
 	m_logger->open();
-	m_active = new ChildProcess(this);
-	return m_active->start();
+	while(count--) {
+		ChildProcess * p = new ChildProcess(this);
+		bool started = p->start();
+		XDEBUG(std::cerr << "Family::start() active.size = " << m_active.size() << ", count = " << count << ", started: " << (started ? "true" : "false") << std::endl);
+		if(started)
+			m_active.insert(p);
+		else
+			delete p;
+	}
+	return ! m_active.empty();
 }
 
 bool Family::stop()
@@ -137,7 +161,7 @@ void Family::output(char stream, const std::string & s, bool forcetimestamp)
 void Family::celebrate_child_death(ChildProcess * cp, int status)
 {
 //	ASSERT(cp == m_active);
-	m_active = 0;
+	m_active.erase(cp);
 	std::ostringstream ss;
 
 	ss << "Process " << cp->pid();
@@ -154,6 +178,7 @@ void Family::celebrate_child_death(ChildProcess * cp, int status)
 	}
 
 	output('S', ss.str(), true);
+	m_active.erase(cp);
 	delete cp;
 	if((m_state == ST_RUN && m_autorestart) || m_state == ST_RESTART) {
 		disp.register_alarm(m_restart_delay, this);
@@ -191,6 +216,12 @@ bool Family::configure(const std::string & var, const std::string & value)
 		return true;
 	} else if(var == "restartdelay") {
 		m_restart_delay = Config::to_int(value);
+		return true;
+	} else if(var == "clones") {
+		int c = Config::to_int(value);
+		if(c < 1 || c > 100)
+			return false;
+		m_clones = c;
 		return true;
 	}
 	return false;
