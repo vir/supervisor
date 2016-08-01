@@ -10,7 +10,7 @@
 #include <iostream>
 #include <sys/wait.h> // for exit status explanation
 
-#if 1
+#if 0
 # define XDEBUG(a) a
 #else
 # define XDEBUG(s)
@@ -71,7 +71,7 @@ Family::~Family()
 	if(! m_active.empty()) {
 		std::ostringstream ss;
 		ss << "WARNING: Family " << m_name << " terminated with " << m_active.size() << " alive children";
-		output('S', ss.str(), true);
+		output(ss.str());
 	}
 	config.unregister_context(m_name);
 	delete m_logger;
@@ -89,14 +89,14 @@ void Family::shutdown(bool initial)
 	int sig = killseq[m_shutdownphase];
 	if(sig) {
 		std::stringstream ss;
-		ss << "Sending signal " << sig;
-		output('S', ss.str(), true);
+		ss << "Sending signal " << sig << " to " << m_active.size() << " children";
+		output(ss.str());
 		for(std::set<ChildProcess *>::iterator it = m_active.begin(); it != m_active.end(); ++it)
 			(*it)->kill(sig);
 		m_shutdownphase++;
 		disp.register_alarm(2, this);
 	} else {
-		output('S', "Can not kill children!!! Giving up.", true);
+		output("Can not kill children!!! Giving up.");
 	}
 }
 
@@ -139,19 +139,19 @@ bool Family::autostart()
 	return false;
 }
 
-void Family::output(char stream, const std::string & s, bool forcetimestamp)
+void Family::output(char stream, const std::string & s, pid_t pid, bool forcetimestamp)
 {
 #ifdef USE_SYSLOG
 	if(stream == 'S')
 		::syslog(LOG_NOTICE, "(%s) %s", m_name.c_str(), s.c_str());
 #endif
 	if(m_logger) {
-		std::string ll = m_logger->log(m_name, std::string(&stream, 1), s, forcetimestamp);
-//		m_logtail.push_back(ll); XXX XXX XXX
-		if(m_logtail.size() > m_logtailsize)
+		std::string ll = m_logger->log(std::string(&stream, 1), s, pid, forcetimestamp, (m_clones > 1));
+		m_logtail.push_back(ll);
+		while(m_logtail.size() > m_logtailsize)
 			m_logtail.pop_front();
 	} else {
-		if(/*m_append_date ||*/ forcetimestamp)
+		if(forcetimestamp)
 			std::cout << now() << " ";
 		std::cout << "OUTPUT(" << m_name << ":" << stream << "): ";
 		std::cout << s << std::endl;
@@ -177,7 +177,7 @@ void Family::celebrate_child_death(ChildProcess * cp, int status)
 		ss << "continued";
 	}
 
-	output('S', ss.str(), true);
+	output(ss.str(), cp->pid());
 	m_active.erase(cp);
 	delete cp;
 	if((m_state == ST_RUN && m_autorestart) || m_state == ST_RESTART) {

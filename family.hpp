@@ -30,7 +30,13 @@ class Family:public TimerHandler, public ConfTarget
 		unsigned int m_logtailsize;
 		unsigned int m_shutdownphase;
 		unsigned int m_clones;
+	protected:
 		void shutdown(bool initial = true);
+		inline void output(const std::string & s, pid_t pid = 0)
+		{
+			output('S', s, pid, true);
+		}
+		void output(char stream, const std::string & s, pid_t pid, bool forcetimestamp);
 	public:
 		Family(const std::string & name);
 		virtual ~Family();
@@ -44,7 +50,10 @@ class Family:public TimerHandler, public ConfTarget
 		bool autostart();
 		void open_log(bool force_reopen);
 		void celebrate_child_death(ChildProcess * cp, int status);
-		void output(char stream, const std::string & s, bool forcetimestamp = false);
+		inline void output(char stream, const std::string & s, pid_t pid)
+		{
+			output(stream, s, pid, false);
+		}
 		virtual void timeout();
 		virtual bool configure(const std::string & var, const std::string & value);
 		virtual ConfTarget * confcontext(const std::string & ctx, bool brackets);

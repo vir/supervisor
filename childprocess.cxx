@@ -112,7 +112,7 @@ int ChildProcess::can_read(int fd)
 			m_fdo = -1;
 		}
 		while(m_bufo.readline(buf)) {
-			m_family->output('O', buf);
+			m_family->output('O', buf, m_pid);
 		}
 	} else if(fd == m_fde) {
 		r = m_bufe.do_read();
@@ -122,7 +122,7 @@ int ChildProcess::can_read(int fd)
 			m_fde = -1;
 		}
 		while(m_bufe.readline(buf)) {
-			m_family->output('E', buf);
+			m_family->output('E', buf, m_pid);
 		}
 	} else {
 		std::cerr << "ChildProcess::can_read: Not my fd: " << fd << std::endl;

@@ -15,6 +15,7 @@ class Logger:public ConfTarget
 		std::string m_name;
 		bool m_append_date;
 		bool m_usecs_timestamps;
+		bool m_append_pid;
 		std::string m_filename;
 		std::ofstream m_file;
 	public:
@@ -22,7 +23,7 @@ class Logger:public ConfTarget
 		virtual ~Logger();
 		void open();
 		void close();
-		std::string log(const std::string & source, std::string tag, const std::string msg, bool forcetimestamp = false);
+		std::string log(const std::string& tag, const std::string msg, pid_t pid, bool forcetimestamp = false, bool forcepid = false);
 		virtual bool configure(const std::string & var, const std::string & value);
 };
 

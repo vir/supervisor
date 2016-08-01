@@ -11,6 +11,7 @@
 
 Logger::Logger(const std::string & name)
 	:m_name(name), m_append_date(true), m_usecs_timestamps(false)
+	, m_append_pid(false)
 {
 }
 
@@ -70,13 +71,15 @@ static std::string now(bool usecs = false)
 	return std::string(outstr);
 }
 
-std::string Logger::log(const std::string & source, std::string tag, const std::string msg, bool forcetimestamp)
+std::string Logger::log(const std::string& tag, const std::string msg, pid_t pid, bool forcetimestamp/* = false*/, bool forcepid/* = false*/)
 {
 	std::ostringstream ss;
-//	std::cout << "Log[" << m_name << "](" << source << ", " << tag << ", " << msg << ", " << forcetimestamp << ")" << std::endl;
 	if(m_append_date || forcetimestamp)
 		ss << now(m_usecs_timestamps) << " ";
-	ss << source << "[" << tag << "] " << msg << std::endl;
+	ss << m_name;
+	if(m_append_pid || forcepid)
+		ss << "[" << pid << "]";
+	ss << "[" << tag << "] " << msg << std::endl;
 	if(!super.background())
 		std::cout << ss.str();
 	m_file << ss.str();
@@ -92,6 +95,9 @@ bool Logger::configure(const std::string & var, const std::string & value)
 		return true;
 	} else if(var == "microseconds") {
 		m_usecs_timestamps = Config::to_bool(value);
+		return true;
+	} else if(var == "pid") {
+		m_append_pid = Config::to_bool(value);
 		return true;
 	}
 	return false;
